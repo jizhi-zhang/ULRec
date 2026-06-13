@@ -25,7 +25,8 @@ from Agents.agent_react import ReactReflectAgent
 from models.llama_vllm_para import LlamaInterface
 
 from tasks import get_task
-from env import get_envs, get_groundingmodel
+from envs import get_envs, get_groundingmodel
+from Agents.agent_react import ReactOnlyAgent
 # from tools import call_tools
 # from tools.search import search_save
 from datetime import datetime
@@ -229,6 +230,8 @@ if __name__ == '__main__':
         agent = ActOnlyAgent(task, idxs, args, envs, grounding_model, max_steps=args.Max_Iteration, react_llm=model)
     elif args.agent_name == "agent_reflection":
         agent = ReactReflectAgent(task, idxs, args, envs, grounding_model, max_steps=args.Max_Iteration, react_llm=model, reflect_llm=model, reflections_memory=reflections)
+    elif args.agent_name == "agent_react":
+        agent = ReactOnlyAgent(task, idxs, args, envs, grounding_model, max_steps=args.Max_Iteration, react_llm=model)
 
     infos = agent.run(outfilename=outfilename)
     

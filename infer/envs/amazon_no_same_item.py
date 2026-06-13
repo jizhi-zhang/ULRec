@@ -67,11 +67,14 @@ class AmazonENV_no_same_item(object):
         if item in item_list[:-1]:
             print(f"userid:{userid}; item:{item} recommend again")
             return True
+        reward = self.get_reward(userid, item)
+        if len(item_list) == 1 and reward < 2:
+            print(f"userid:{userid}; item:{item}; first action reward: {reward}")
+            return True
         for i, history_item in enumerate(reversed(item_list[:-1])):
             itemid = self.item2id[item]
             history_itemid = self.item2id[history_item]
             distance = self.distance_mat[itemid, history_itemid]
-            reward = self.get_reward(userid, item)
             
             if i < self.env_window_length and (distance < self.threshold or reward < 2):
                 print(f"userid:{userid}; item:{item}; history_item:{history_item}; distance:{distance}, reward: {reward}")

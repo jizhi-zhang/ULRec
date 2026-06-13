@@ -53,24 +53,6 @@ class ReactAgent:
         self.max_steps = max_steps
         self.agent_prompt = agent_prompt
         self.react_examples = WEBTHINK_SIMPLE6
-        if args.env == 'movie':
-            self.react_examples = WEBTHINK_SIMPLE8
-            self.GENRE = GENRE_MOVIE
-        elif args.env == 'steam':
-            self.react_examples = WEBTHINK_SIMPLE8
-            self.GENRE = GENRE_STEAM
-        elif args.env == 'steam_no_same_item_prior_sample':
-            self.react_examples = WEBTHINK_SIMPLE8
-            self.GENRE = GENRE_STEAM
-        elif args.env == 'steam_same_env':
-            self.react_examples = WEBTHINK_SIMPLE8
-            self.GENRE = GENRE_STEAM
-        elif args.env == 'amazon':
-            self.react_examples = WEBTHINK_SIMPLE7
-            self.GENRE = GENRE_AMAZON
-        elif args.env == 'amazon_no_same_item_prior_sample':
-            self.react_examples = WEBTHINK_SIMPLE7
-            self.GENRE = GENRE_AMAZON
 
     
         self.env = rec_env
