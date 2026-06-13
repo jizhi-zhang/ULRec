@@ -163,6 +163,65 @@ class ReactReflectAgent(ReactAgent):
         
 
 
+class ReactOnlyAgent(ReactAgent):
+    def __init__(self,
+                 task,
+                 idxs: list, 
+                 args, 
+                 rec_env,
+                 grounding_model,
+                 max_steps: int = 30,
+                 agent_prompt: PromptTemplate = react_reflect_agent_prompt,
+                 react_llm: AnyOpenAILLM = AnyOpenAILLM(
+                                             temperature=0,
+                                             max_tokens=3000,
+                                             model_name="gpt-3.5-turbo-16k",
+                                             model_kwargs={"stop": "\n"},
+                                             openai_api_key=os.environ['OPENAI_API_KEY'],
+                                             openai_api_base = os.environ['OPENAI_API_BASE']),
+                 ) -> None:
+        
+        super().__init__(task, idxs, args, rec_env, grounding_model, max_steps, agent_prompt, react_llm)
+        self.infos = {}
+        self.final_infos = {}
+        self.batch_size = args.batch_size
+        self.enc = tiktoken.encoding_for_model("text-davinci-003")
+    
+    def run(self, reset = True, outfilename='') -> None:
+        
+        for i in range(0, len(self.idxs), self.batch_size):
+            temp_idxs = self.idxs[i: i+self.batch_size]
+            
+            print(f'temp_idxs:{temp_idxs}')
+            
+            self.single_run(temp_idxs, reset)
+            
+            self._build_info(temp_idxs)
+        
+        self.final_infos['trajs'] = self.infos
+        return self.final_infos
+    
+    def _build_agent_prompt(self, idxs) -> str:
+        prompts = [self.agent_prompt.format(
+                            examples = self.react_examples,
+                            reflections = '',
+                            question = self.task[id],
+                            scratchpad = truncate_scratchpad(self.scratchpad[id],tokenizer=self.enc)) for id in idxs]
+        return prompts
+    
+    def _build_info(self, idxs) -> str:
+        for id in idxs:
+            userid = self.userids[id]
+            self.infos[id] = {}
+            prompt = self.agent_prompt.format(
+                                examples = self.react_examples,
+                                reflections = '',
+                                question = '',
+                                scratchpad = '')
+            traj = self.task[id] + self.scratchpad[id]
+            self.infos[id].update({'userid': userid, 'prompt': prompt, 'traj': traj, 'traj_by_line': traj.split('\n')})
+      
+
 ### String Stuff ###
 gpt2_enc = tiktoken.encoding_for_model("text-davinci-003")
 
